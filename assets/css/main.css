@@ -1,0 +1,267 @@
+@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/dm-sans/index.css';
+@import '@fontsource-variable/space-grotesk/index.css';
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ *
+ * Design tokens
+ * Sampled from the Rechitta Figma file. Everything downstream - type,
+ * colour, spacing, motion - resolves back to one of these.
+ * ------------------------------------------------------------------ */
+@theme {
+  /* Three families, as in the design: Inter sets the headings and copy,
+     DM Sans the interface labels and buttons, Space Grotesk the card titles. */
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: 'DM Sans Variable', var(--font-sans);
+  --font-display: 'Space Grotesk Variable', var(--font-sans);
+
+  /* Surfaces: a near-black page with a cool cast, lifted by translucency */
+  --color-ink-1000: #020406;
+  --color-ink-950: #04070a;
+  --color-ink-900: #080c11;
+  --color-ink-850: #0c1218;
+  --color-ink-800: #111a21;
+  --color-ink-700: #18242d;
+
+  /* Brand accents */
+  --color-gold-200: #e7d3ae;
+  --color-gold-300: #d8bc8a;
+  --color-gold-400: #c8a97e;
+  --color-gold-500: #a88a5f;
+  /* The petrol fill behind the "Next" button and the glow behind the mark. */
+  --color-brand-500: #0a3038;
+  --color-brand-600: #011d24;
+  --color-brand-700: #00141a;
+  --color-muted-500: #898989;
+
+  --color-teal-300: #66c8d4;
+  --color-teal-400: #3fa9b8;
+  --color-teal-500: #2b7d8a;
+  --color-violet-400: #9b7bf0;
+  --color-violet-500: #7b4bd6;
+  --color-amber-300: #f0cf95;
+
+  /* Semantic */
+  --color-danger-400: #f0736b;
+  --color-danger-500: #ff3b30;
+  --color-success-400: #6ad2a0;
+
+  /* Fluid type scale. Every step interpolates between a 360px and a
+     1600px viewport, so text never snaps at a breakpoint. */
+  --text-2xs: clamp(0.625rem, 0.6rem + 0.12vw, 0.6875rem);
+  --text-xs: clamp(0.6875rem, 0.66rem + 0.14vw, 0.75rem);
+  --text-sm: clamp(0.8125rem, 0.78rem + 0.16vw, 0.875rem);
+  --text-base: clamp(0.9375rem, 0.9rem + 0.19vw, 1.0625rem);
+  --text-lg: clamp(1.0625rem, 1rem + 0.31vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.13rem + 0.56vw, 1.625rem);
+  --text-2xl: clamp(1.5rem, 1.29rem + 0.94vw, 2.125rem);
+  --text-3xl: clamp(1.875rem, 1.5rem + 1.72vw, 3rem);
+  --text-4xl: clamp(2.25rem, 1.61rem + 2.86vw, 4.25rem);
+  --text-5xl: clamp(2.75rem, 1.7rem + 4.69vw, 6rem);
+
+  /* Splash headings, matched to the Figma tokens at a 390px frame:
+     "Meet" 20/40 Thin, "Rechitta" 28/40 Bold, "Your AI Agent" 28/40 Regular. */
+  --text-splash-eyebrow: clamp(1.25rem, 1.1406rem + 0.4494vw, 1.5rem);
+  --text-splash-title: clamp(1.75rem, 1.5858rem + 0.6742vw, 2.125rem);
+
+  /* Fluid rhythm */
+  --spacing-gutter: clamp(1rem, 0.6rem + 1.8vw, 2.75rem);
+  --spacing-section: clamp(3.5rem, 2rem + 6.5vw, 8rem);
+
+  --radius-card: clamp(1rem, 0.75rem + 1.1vw, 1.75rem);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ------------------------------------------------------------------ *
+ * Base
+ * ------------------------------------------------------------------ */
+@layer base {
+  :root {
+    color-scheme: dark;
+    --shell-gutter: var(--spacing-gutter);
+    /* No header in the design. Kept as a token because the sticky offsets in
+       the aside, the answer view and the voice controls are all expressed
+       against it. */
+    --header-h: 0rem;
+  }
+
+  html {
+    /* Smooth, native scrolling on desktop and mobile. No scroll-jacking:
+       the page is a normal document, we only ask the browser to ease. */
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink-950);
+    color: rgb(255 255 255 / 0.92);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.55;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100svh;
+  }
+
+  /* iOS momentum scrolling inside scroll containers */
+  [data-scroll-region] {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* The design's type tokens all specify 0% tracking, so headings inherit
+     the font's own spacing rather than being tightened. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.08;
+    text-wrap: balance;
+    font-weight: 500;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a[href],
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-300);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-gold-400);
+    color: var(--color-ink-1000);
+  }
+
+  /* Scrollbar, dark-tuned */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.16) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.14);
+    border-radius: 99px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgb(255 255 255 / 0.26);
+    background-clip: content-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Reusable primitives
+ * ------------------------------------------------------------------ */
+@layer components {
+  /* Full bleed: the app uses the whole viewport, so this only adds gutters. */
+  .shell {
+    width: 100%;
+    padding-inline: var(--shell-gutter);
+  }
+
+  .eyebrow {
+    font-size: var(--text-2xs);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-gold-400);
+  }
+
+  .surface {
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018)),
+      rgb(8 12 17 / 0.72);
+    border: 1px solid rgb(255 255 255 / 0.09);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  .hairline {
+    border-color: rgb(255 255 255 / 0.09);
+  }
+
+  /* Shimmer used by every skeleton in the app */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: rgb(255 255 255 / 0.055);
+  }
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
+    animation: shimmer 1.45s infinite;
+  }
+  @keyframes shimmer {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Ambient contour lines that sit behind the hero, echoing the Figma art */
+  .contours {
+    background-image:
+      radial-gradient(120% 90% at 50% -10%, rgb(63 169 184 / 0.16), transparent 62%),
+      radial-gradient(80% 60% at 12% 4%, rgb(123 75 214 / 0.12), transparent 70%);
+  }
+}
+
+@layer utilities {
+  .font-ui {
+    font-family: var(--font-ui);
+  }
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .text-dim {
+    color: rgb(255 255 255 / 0.62);
+  }
+  .text-dimmer {
+    color: rgb(255 255 255 / 0.5);
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent);
+    mask-image: linear-gradient(180deg, #000 62%, transparent);
+  }
+}
